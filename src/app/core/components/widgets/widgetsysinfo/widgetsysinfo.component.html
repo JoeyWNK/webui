@@ -70,7 +70,7 @@
               <div fxHide.xs class="list-subheader">Overview</div>
           
               <mat-list>
-                <mat-list-item><strong>{{'Platform' | translate}}:</strong> &nbsp;&nbsp;{{data.system_product && manufacturer == 'ixsystems' ? data.system_product : 'Generic'}}</mat-list-item>
+                <mat-list-item><strong>{{'Platform' | translate}}:</strong> &nbsp;&nbsp;{{data.system_product ? data.system_product : 'Generic'}}</mat-list-item>
                 <mat-list-item><strong>{{"Version" | translate}}:</strong> &nbsp;&nbsp;{{data.version}}</mat-list-item>
   
                 <mat-list-item *ngIf="data.license">
@@ -78,8 +78,12 @@
                   <span style="text-transform:capitalize">{{data.license.contract_type.toLowerCase()}}</span> &nbsp;contract, &nbsp;
                   expires {{data.license.contract_end.$value}}
                 </mat-list-item>
-  
-                <mat-list-item  *ngIf="data.system_serial && manufacturer == 'ixsystems' ">
+
+                <mat-list-item  *ngIf="data.manufacturer">
+                  <span><strong>{{"Manufacturer" | translate}}:</strong>&nbsp;&nbsp;{{ data.manufacturer}}</span>
+                </mat-list-item>
+
+                <mat-list-item  *ngIf="data.system_serial">
                   <span><strong>{{"Serial Number" | translate}}:</strong>&nbsp;&nbsp;{{ data.system_serial}}</span>
                 </mat-list-item>
               

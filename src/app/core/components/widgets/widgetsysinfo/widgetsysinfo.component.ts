@@ -166,7 +166,7 @@ export class WidgetSysInfoComponent extends WidgetComponent implements OnInit,On
       if(this.data.system_manufacturer && this.data.system_manufacturer.toLowerCase() == 'ixsystems'){
         this.manufacturer = "ixsystems";
       } else {
-        this.manufacturer = "other";
+        this.manufacturer = this.data.system_manufacturer;
       }
       if (this.is_freenas === 'true') {
         this.systemLogo = 'logo.svg';
