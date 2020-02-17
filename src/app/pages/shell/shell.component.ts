@@ -50,9 +50,9 @@ export class ShellComponent implements OnInit, OnChanges, OnDestroy {
       this.shellSubscription.unsubscribe();
     }
   }
-
+  
   onResize(event) {
-    // this.resizeTerm();
+    this.resizeTerm();
   }
 
   resetDefault() {
@@ -86,14 +86,14 @@ export class ShellComponent implements OnInit, OnChanges, OnDestroy {
     }
     let rowNum = (domHeight * 0.75 - 104) / 21;
     if (rowNum < 10) {
-      rowNum = 10;
+      rowNum = 25;
     }
 
     this.xterm = new (<any>window).Terminal({
       'cursorBlink': false,
       'tabStopWidth': 8,
-      // 'cols': parseInt(colNum.toFixed(),10),
-      // 'rows': parseInt(rowNum.toFixed(),10),
+      'cols': parseInt(colNum.toFixed(),10),
+      'rows': parseInt(rowNum.toFixed(),10),
       'focus': true
     });
     this.xterm.open(this.container.nativeElement, true);
@@ -112,7 +112,7 @@ export class ShellComponent implements OnInit, OnChanges, OnDestroy {
     if (rowNum < 10) {
       rowNum = 10;
     }
-    this.xterm.resize(colNum,rowNum);
+    this.xterm.resize(parseInt(colNum.toFixed(),10),parseInt(rowNum.toFixed(),10));
     return true;
   }
 

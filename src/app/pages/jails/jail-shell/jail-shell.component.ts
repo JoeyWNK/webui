@@ -23,6 +23,7 @@ export class JailShellComponent implements OnInit, OnChanges, OnDestroy {
   cols: string;
   rows: string;
   font_size: number;
+  public jailTitle: string
   public token: any;
   public xterm: any;
   private shellSubscription: any;
@@ -43,6 +44,7 @@ export class JailShellComponent implements OnInit, OnChanges, OnDestroy {
   ngOnInit() {
     this.aroute.params.subscribe(params => {
       this.pk = params['pk'];
+      this.jailTitle = this.pk;
       this.getAuthToken().subscribe((res) => {
         this.initializeWebShell(res);
         this.shellSubscription = this.ss.shellOutput.subscribe((value) => {
@@ -70,6 +72,10 @@ export class JailShellComponent implements OnInit, OnChanges, OnDestroy {
     }
   };
 
+  onResize(event) {
+    this.resizeTerm();
+  }
+
   resetDefault() {
     this.font_size = 14;
   }
@@ -89,21 +95,41 @@ export class JailShellComponent implements OnInit, OnChanges, OnDestroy {
 
   initializeTerminal() {
     const domHeight = document.body.offsetHeight;
+    const domWidth = document.body.offsetWidth;
+    let colNum = (domWidth * 0.75 - 104) / 10;
+    if (colNum < 80) {
+      colNum = 80;
+    }
     let rowNum = (domHeight * 0.75 - 104) / 21;
     if (rowNum < 10) {
-      rowNum = 10;
+      rowNum = 25;
     }
 
-    this.xterm = new (<any>window).Terminal({ 
-      'cursorBlink': true,
+    this.xterm = new (<any>window).Terminal({
+      'cursorBlink': false,
       'tabStopWidth': 8,
-      'cols': 80,
-      'rows': parseInt(rowNum.toFixed(), 10),
+      'cols': parseInt(colNum.toFixed(),10),
+      'rows': parseInt(rowNum.toFixed(),10),
       'focus': true
     });
     this.xterm.open(this.container.nativeElement);
     this.xterm.attach(this.ss);
     this.xterm._initialized = true;
+  }
+
+  resizeTerm(){
+    const domHeight = document.body.offsetHeight;
+    const domWidth = document.body.offsetWidth;
+    let colNum = (domWidth * 0.75 - 104) / 10;
+    if (colNum < 80) {
+      colNum = 80;
+    }
+    let rowNum = (domHeight * 0.75 - 104) / 21;
+    if (rowNum < 10) {
+      rowNum = 25;
+    }
+    this.xterm.resize(parseInt(colNum.toFixed(),10),parseInt(rowNum.toFixed(),10));
+    return true;
   }
 
   initializeWebShell(res: string) {

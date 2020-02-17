@@ -30,6 +30,7 @@ export class SystemProcessesComponent implements OnInit, OnDestroy {
         this.xterm.write(value);
         if (!this.top_displayed) {
           setTimeout(function() {
+            self.xterm.send('resizewin\n');
             self.xterm.send('top\n');
             setTimeout(function() {
               self.xterm.setOption('disableStdin', true);
@@ -56,13 +57,28 @@ export class SystemProcessesComponent implements OnInit, OnDestroy {
     }
   };
 
+  onResize(event) {
+    this.resizeTerm();
+  }
+
   initializeTerminal() {
+    const domHeight = document.body.offsetHeight;
+    const domWidth = document.body.offsetWidth;
+    let colNum = (domWidth * 0.75 - 104) / 10;
+    if (colNum < 80) {
+      colNum = 80;
+    }
+    let rowNum = (domHeight * 0.75 - 54) / 21;
+    if (rowNum < 10) {
+      rowNum = 25;
+    }
+
     return new Promise((resolve, reject) => {
       this.xterm = new (<any>window).Terminal({ 
         //'cursorBlink': true,
         //'tabStopWidth': 4,
-        'cols': 80,
-        'rows': 25,
+        'cols': parseInt(colNum.toFixed(),10),
+        'rows': parseInt(rowNum.toFixed(),10),
         'focus': false, 
       });
       this.xterm.open(this.container.nativeElement);
@@ -70,6 +86,22 @@ export class SystemProcessesComponent implements OnInit, OnDestroy {
       this.xterm._initialized = true;
       resolve(this.xterm._initialized);
     });
+  }
+
+  resizeTerm(){
+    const domHeight = document.body.offsetHeight;
+    const domWidth = document.body.offsetWidth;
+    let colNum = (domWidth * 0.75 - 104) / 10;
+    if (colNum < 80) {
+      colNum = 80;
+    }
+    let rowNum = (domHeight * 0.75 - 104) / 21;
+    if (rowNum < 10) {
+      rowNum = 25;
+    }
+
+    this.xterm.resize(parseInt(colNum.toFixed(),10),parseInt(rowNum.toFixed(),10));
+    return true;
   }
 
   initializeWebShell(res: string) {
