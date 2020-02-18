@@ -30,8 +30,7 @@ export class SystemProcessesComponent implements OnInit, OnDestroy {
         this.xterm.write(value);
         if (!this.top_displayed) {
           setTimeout(function() {
-            self.xterm.send('resizewin\n');
-            self.xterm.send('top\n');
+            self.xterm.send('resizewin && top\n');
             setTimeout(function() {
               self.xterm.setOption('disableStdin', true);
             }, 100);
@@ -74,8 +73,10 @@ export class SystemProcessesComponent implements OnInit, OnDestroy {
     }
 
     return new Promise((resolve, reject) => {
-      this.xterm = new (<any>window).Terminal({ 
-        //'cursorBlink': true,
+      this.xterm = new (<any>window).Terminal({
+        'cursorStyle':  'bar',
+        'cursorWidth': 0,
+        'cursorHidden': true,
         //'tabStopWidth': 4,
         'cols': parseInt(colNum.toFixed(),10),
         'rows': parseInt(rowNum.toFixed(),10),
