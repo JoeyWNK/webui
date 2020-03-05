@@ -7,7 +7,7 @@
 
 	<div
 		id="terminal"
-		[ngStyle]="{'font-size' : font_size+'px'}"
+		[ngStyle]="{'font-size' : font_size+'px', 'height' : 'calc(100vh - 350px)'}"
 		#terminal
 		(window:resize)="onResize($event)"
 		(contextmenu)="onRightClick()"
