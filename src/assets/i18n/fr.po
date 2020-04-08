@@ -4374,7 +4374,7 @@ msgid "Edit"
 msgstr "Modifier"
 
 msgid "Edit ACL"
-msgstr "Modifier ACL"
+msgstr "Modifier les ACLs"
 
 msgid "Edit Alert Service"
 msgstr "Éditer le service d'alerte"
@@ -4389,7 +4389,7 @@ msgid "Edit Options"
 msgstr "Modifier les options"
 
 msgid "Edit Permissions"
-msgstr "Modifier les permissions"
+msgstr "Modifier les autorisations"
 
 msgid "Edit Zvol"
 msgstr "Modifier le Zvol"
@@ -13570,7 +13570,7 @@ msgid "Upcoming tasks"
 msgstr "Tâches à venir"
 
 msgid "Update"
-msgstr "Mettre à jour"
+msgstr "Mise à jour"
 
 msgid "Update File"
 msgstr "Mettre à jour le fichier"

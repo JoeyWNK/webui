@@ -678,7 +678,7 @@ export class VolumesListTableConfig implements InputTableConf {
                       this.dialogRef.componentInstance.success.subscribe(
                         (jobres) => {
                           this.dialogRef.close(false);
-                          if (jobres.progress.percent == 100) {
+                          if (jobres.progress.percent == 100 && jobres.progress.description === "Scrub finished") {
                             this.dialogService.Info(T('Scrub Complete'), T('Scrub complete on pool <i>') + row1.name + "</i>.", '300px', "info", true);
                           } else {
                             this.dialogService.Info(T('Stop Scrub'), T('Stopped the scrub on pool <i>') + row1.name + "</i>.", '300px', "info", true);
@@ -712,8 +712,12 @@ export class VolumesListTableConfig implements InputTableConf {
             name: T('Upgrade Pool'),
             label: T("Upgrade Pool"),
             onClick: (row1) => {
+              let upgrade_warning = helptext.upgradePoolDialog_warning;
+              if (window.localStorage.getItem('is_freenas') === 'false') {
+                upgrade_warning = helptext.upgradePoolDialog_warning_truenas;
+              }
 
-              this.dialogService.confirm(T("Upgrade Pool"), helptext.upgradePoolDialog_warning + row1.name).subscribe((confirmResult) => {
+              this.dialogService.confirm(T("Upgrade Pool"), upgrade_warning + row1.name).subscribe((confirmResult) => {
                   if (confirmResult === true) {
                     this.loader.open();
 
@@ -1003,7 +1007,7 @@ export class VolumesListTableConfig implements InputTableConf {
 
   getTimestamp() {
     let dateTime = new Date();
-    return moment(dateTime).format("YYYY-MM-DD_hh-mm");
+    return moment(dateTime).format("YYYY-MM-DD_HH-mm");
   }
 
   dataHandler(data: any): TreeNode {
