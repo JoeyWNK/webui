@@ -87,6 +87,7 @@ export class VolumeStatusComponent implements OnInit {
   }];
 
   protected pool: any;
+  protected timezone: string;
 
   constructor(protected aroute: ActivatedRoute,
     protected ws: WebSocketService,
@@ -155,6 +156,9 @@ export class VolumeStatusComponent implements OnInit {
       this.getData();
     });
     this.getUnusedDisk();
+    this.ws.call('system.info').subscribe(res => {
+      this.timezone = res.timezone;
+    })
   }
 
   refresh() {
@@ -283,8 +287,11 @@ export class VolumeStatusComponent implements OnInit {
     }, {
       label: T("Remove"),
       onClick: (row) => {
-        const pIndex = row.name.lastIndexOf('p');
-        const diskName = pIndex > -1 ? row.name.substring(0, pIndex) : row.name;
+        let diskName = row.name;
+        if (!_.startsWith(row.name, '/')) {
+          const pIndex = row.name.lastIndexOf('p');
+          diskName = pIndex > -1 ? row.name.substring(0, pIndex) : row.name;
+        }
 
         this.dialogService.confirm(
           "Remove",
@@ -372,9 +379,9 @@ export class VolumeStatusComponent implements OnInit {
 
     const item: poolDiskInfo = {
       name: data.name ? data.name : data.device,
-      read: stats.read_errors ? stats.read_errors : 0,
-      write: stats.write_errors ? stats.write_errors : 0,
-      checksum: stats.checksum_errors ? stats.checksum_errors : 0,
+      read: stats.read_errors ? stats.read_errors.toString() : 0,
+      write: stats.write_errors ? stats.write_errors.toString() : 0,
+      checksum: stats.checksum_errors ? stats.checksum_errors.toString() : 0,
       status: data.status,
       path: data.path,
       guid: data.guid,
@@ -435,7 +442,7 @@ export class VolumeStatusComponent implements OnInit {
 
   getReadableDate(data: any) {
     if (data != null) {
-      return new Date(data.$date);
+      return new Date(data.$date).toLocaleString('en-US', {timeZone: this.timezone});
     }
     return;
   }

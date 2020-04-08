@@ -507,6 +507,25 @@ export class ReplicationFormComponent {
                 }]
             }],
         }, {
+            type: 'select',
+            name: 'readonly',
+            placeholder: helptext.readonly_placeholder,
+            tooltip: helptext.readonly_tooltip,
+            options: [
+                {
+                    label: 'SET',
+                    value: 'SET',
+                },
+                {
+                    label: 'REQUIRE',
+                    value: 'REQUIRE',
+                },
+                {
+                    label: 'IGNORE',
+                    value: 'IGNORE',
+                }
+            ]
+        }, {
             type: 'checkbox',
             name: 'allow_from_scratch',
             placeholder: helptext.allow_from_scratch_placeholder,
@@ -822,6 +841,29 @@ export class ReplicationFormComponent {
 
     afterInit(entityForm) {
         this.entityForm = entityForm;
+        const isFreenas = window.localStorage.getItem('is_freenas') === 'true' ? true : false;
+        const readonlyField = _.find(this.fieldConfig, {name: 'readonly'});
+        const readonlyCtrl = this.entityForm.formGroup.controls['readonly'];
+
+        if (entityForm.pk === undefined) {
+            readonlyCtrl.setValue(isFreenas ? 'SET' : 'REQUIRE');
+        }
+
+        this.entityForm.formGroup.controls['transport'].valueChanges.subscribe(
+            (res) => {
+                for (const option of readonlyField.options) {
+                    if (res === 'LEGACY') {
+                        option['disable'] = isFreenas ? (option.value === 'SET' ? false : true) : (option.value === 'REQUIRE' ? false : true);
+                    } else {
+                        option['disable'] = false;
+                    }
+                }
+                if (res === 'LEGACY' && ((isFreenas && readonlyCtrl.value !== 'SET') || (!isFreenas && readonlyCtrl.value !== 'REQUIRE'))) {
+                   readonlyCtrl.setValue(isFreenas ? 'SET' : 'REQUIRE');
+                }
+            }
+        );
+
         if (this.entityForm.formGroup.controls['speed_limit'].value) { 
             let presetSpeed = (this.entityForm.formGroup.controls['speed_limit'].value).toString();
             this.storageService.humanReadable = presetSpeed;
@@ -895,6 +937,28 @@ export class ReplicationFormComponent {
             }
             entityForm.setDisabled('only_matching_schedule', toDisable, toDisable);
         })
+
+        entityForm.formGroup.controls['schedule_picker'].valueChanges.subscribe(value => {
+            if (value === '0 0 * * *' || value === '0 0 * * sun' || value === '0 0 1 * *') {
+              entityForm.setDisabled('schedule_begin', true, true);
+              entityForm.setDisabled('schedule_end', true, true);
+      
+            } else {
+              entityForm.setDisabled('schedule_begin', false, false);
+              entityForm.setDisabled('schedule_end', false, false);
+            }
+          })
+
+        entityForm.formGroup.controls['restrict_schedule_picker'].valueChanges.subscribe(value => {
+            if (value === '0 0 * * *' || value === '0 0 * * sun' || value === '0 0 1 * *') {
+              entityForm.setDisabled('restrict_schedule_begin', true, true);
+              entityForm.setDisabled('restrict_schedule_end', true, true);
+      
+            } else {
+              entityForm.setDisabled('restrict_schedule_begin', false, false);
+              entityForm.setDisabled('restrict_schedule_end', false, false);
+            }
+          })
 
         entityForm.formGroup.controls['ssh_credentials'].valueChanges.subscribe(
             (res) => {
