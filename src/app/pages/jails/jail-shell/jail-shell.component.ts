@@ -4,9 +4,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { CopyPasteMessageComponent } from 'app/pages/shell/copy-paste-message.component';
 import * as _ from 'lodash';
-import { ShellService, WebSocketService } from '../../../services/';
+import { ShellService, WebSocketService, AttachAddon } from '../../../services/';
 import helptext from "./../../../helptext/shell/shell";
-
+import { Terminal } from 'xterm';
+import { FitAddon } from 'xterm-addon-fit';
 @Component({
   selector: 'app-jail-shell',
   templateUrl: './jail-shell.component.html',
@@ -25,11 +26,11 @@ export class JailShellComponent implements OnInit, OnChanges, OnDestroy {
   font_size: number;
   public jailTitle: string
   public token: any;
-  public xterm: any;
+  public xterm: Terminal;
   private shellSubscription: any;
-
+  private fitAddon: FitAddon = new FitAddon();
   public shell_tooltip = helptext.usage_tooltip;
-
+  public shellConnected: boolean = false;
   clearLine = "\u001b[2K\r"
   protected pk: string;
   protected route_success: string[] = ['jails'];
@@ -42,25 +43,14 @@ export class JailShellComponent implements OnInit, OnChanges, OnDestroy {
               }
 
   ngOnInit() {
-    this.aroute.params.subscribe(params => {
-      this.pk = params['pk'];
-      this.jailTitle = this.pk;
-      this.getAuthToken().subscribe((res) => {
-        this.initializeWebShell(res);
-        this.shellSubscription = this.ss.shellOutput.subscribe((value) => {
-          if (value !== undefined) {
-            this.xterm.write(value);
-
-            if (_.trim(value) == "logout") {
-              this.xterm.destroy();
-              this.router.navigate(new Array('/').concat(this.route_success));
-            }
-          }
-        });
-        this.initializeTerminal();
-      });
+    this.xterm = new Terminal();
+    this.xterm.open(this.container.nativeElement);
+    this.xterm.loadAddon(this.fitAddon);
+    this.onResize(null);
+    this.getAuthToken().subscribe((res) => {
+      this.initializeWebShell(res);
+      this.initializeTerminal();
     });
-
   }
 
   ngOnDestroy() {
@@ -94,27 +84,9 @@ export class JailShellComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   initializeTerminal() {
-    const domHeight = document.body.offsetHeight;
-    const domWidth = document.body.offsetWidth;
-    let colNum = (domWidth * 0.75 - 104) / 10;
-    if (colNum < 80) {
-      colNum = 80;
-    }
-    let rowNum = (domHeight * 0.75 - 104) / 21;
-    if (rowNum < 10) {
-      rowNum = 25;
-    }
-
-    this.xterm = new (<any>window).Terminal({
-      'cursorBlink': false,
-      'tabStopWidth': 8,
-      'cols': parseInt(colNum.toFixed(),10),
-      'rows': parseInt(rowNum.toFixed(),10),
-      'focus': true
-    });
-    this.xterm.open(this.container.nativeElement);
-    this.xterm.attach(this.ss);
-    this.xterm._initialized = true;
+    const attachAddon = new AttachAddon(this.ss.socket);
+    this.xterm.loadAddon(attachAddon);
+    this.fitAddon.fit();
   }
 
   resizeTerm(){
@@ -136,6 +108,9 @@ export class JailShellComponent implements OnInit, OnChanges, OnDestroy {
     this.ss.token = res;
     this.ss.jailId = this.pk;
     this.ss.connect();
+    this.ss.shellConnected.subscribe((res)=> {
+      this.shellConnected = res;
+    })
   }
 
   getAuthToken() {
