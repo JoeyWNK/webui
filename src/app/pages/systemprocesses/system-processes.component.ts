@@ -1,7 +1,9 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material';
-import { ShellService, WebSocketService } from '../../services/';
+import { ShellService, WebSocketService, AttachAddon } from '../../services/';
 import { CopyPasteMessageComponent } from '../shell/copy-paste-message.component';
+import { Terminal } from 'xterm';
+import { FitAddon } from 'xterm-addon-fit';
 
 @Component({
   selector: 'app-system-processes',
@@ -16,77 +18,48 @@ export class SystemProcessesComponent implements OnInit, OnDestroy {
 
   // xterm variables
   public token: any;
-  public xterm: any;
-  private shellSubscription: any;
+  public xterm: Terminal;
+  private fitAddon: FitAddon = new FitAddon();
   private top_displayed = false;
 
   clearLine = "\u001b[2K\r"
 
   ngOnInit() {
-    const self = this;
+    this.xterm = new Terminal();
+    this.xterm.open(this.container.nativeElement);
+    this.xterm.loadAddon(this.fitAddon);
+    this.onResize(null);
     this.getAuthToken().subscribe((res) => {
       this.initializeWebShell(res);
-      this.shellSubscription = this.ss.shellOutput.subscribe((value) => {
-        this.xterm.write(value);
-        if (!this.top_displayed) {
-          setTimeout(function() {
-            self.xterm.send('resizewin && top\n');
-            setTimeout(function() {
-              self.xterm.setOption('disableStdin', true);
-            }, 100);
-          }, 100);
-          this.top_displayed = true;
-        }
-      });
-      this.initializeTerminal().then((res) => {
-        if (res) {
-          // excute 'top' command
-         
-        }
-      });
+      this.initializeTerminal();
+      this.ss.send('resizewin && top\n');
+      setTimeout(function() {
+        this.xterm.setOption('disableStdin', true);
+      },100);
+      
     });
   }
 
   ngOnDestroy() {
-    if (this.shellSubscription) {
-      this.shellSubscription.unsubscribe();
-    }
     if (this.ss.connected){
       this.ss.socket.close();
     }
   };
 
   onResize(event) {
-    this.resizeTerm();
+    let dims = this.fitAddon.proposeDimensions();
+    if (isNaN(dims.rows) || dims.rows == Infinity || isNaN(dims.cols) || dims.cols == Infinity) {
+      console.debug(`Remove an bug where dimensions of the detached terminal element aren't set`)
+      this.xterm.resize(10, 10);
+    } else {
+      this.fitAddon.fit();
+    }
   }
 
   initializeTerminal() {
-    const domHeight = document.body.offsetHeight;
-    const domWidth = document.body.offsetWidth;
-    let colNum = (domWidth * 0.75 - 104) / 10;
-    if (colNum < 80) {
-      colNum = 80;
-    }
-    let rowNum = (domHeight * 0.75 - 54) / 21;
-    if (rowNum < 10) {
-      rowNum = 25;
-    }
-
-    return new Promise((resolve, reject) => {
-      this.xterm = new (<any>window).Terminal({
-        'cursorStyle':  'bar',
-        'cursorWidth': 0,
-        'cursorHidden': true,
-        //'tabStopWidth': 4,
-        'cols': parseInt(colNum.toFixed(),10),
-        'rows': parseInt(rowNum.toFixed(),10),
-        'focus': false, 
-      });
-      this.xterm.open(this.container.nativeElement);
-      this.xterm.attach(this.ss);
-      this.xterm._initialized = true;
-      resolve(this.xterm._initialized);
-    });
+    const attachAddon = new AttachAddon(this.ss.socket);
+    this.xterm.loadAddon(attachAddon);
+    this.fitAddon.fit();
   }
 
   resizeTerm(){

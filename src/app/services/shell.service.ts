@@ -152,10 +152,13 @@ export class AttachAddon implements ITerminalAddon {
         const data: ArrayBuffer | string = ev.data;
         try {
           msg = JSON.parse(<string>data);
-          return;
+          if (msg.msg === "connected") {
+            return;
+          }
         } catch (e) {
-          terminal.write(typeof data === 'string' ? data : new Uint8Array(data));
+          
         }
+        terminal.write(typeof data === 'object' ? new Uint8Array(data) : data);
       })
     );
 

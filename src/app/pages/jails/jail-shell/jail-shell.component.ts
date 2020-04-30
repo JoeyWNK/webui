@@ -19,7 +19,7 @@ export class JailShellComponent implements OnInit, OnChanges, OnDestroy {
   // sets the shell prompt
   @Input() prompt = '';
   //xter container
-  @ViewChild('terminal', { static: true}) container: ElementRef;
+  @ViewChild('terminal', { static: true }) container: ElementRef;
   // xterm variables
   cols: string;
   rows: string;
@@ -35,29 +35,44 @@ export class JailShellComponent implements OnInit, OnChanges, OnDestroy {
   protected pk: string;
   protected route_success: string[] = ['jails'];
   constructor(private ws: WebSocketService,
-              public ss: ShellService,
-              protected aroute: ActivatedRoute,
-              public translate: TranslateService,
-              protected router: Router,
-              private dialog: MatDialog) {
-              }
+    public ss: ShellService,
+    protected aroute: ActivatedRoute,
+    public translate: TranslateService,
+    protected router: Router,
+    private dialog: MatDialog) {
+  }
 
   ngOnInit() {
-    this.xterm = new Terminal();
-    this.xterm.open(this.container.nativeElement);
-    this.xterm.loadAddon(this.fitAddon);
-    this.onResize(null);
-    this.getAuthToken().subscribe((res) => {
-      this.initializeWebShell(res);
-      this.initializeTerminal();
+    this.aroute.params.subscribe(params => {
+      this.pk = params['pk'];
+      this.jailTitle = this.pk;
+      this.getAuthToken().subscribe((res) => {
+        this.shellSubscription = this.ss.shellOutput.subscribe((value) => {
+          if (value !== undefined) {
+
+            if (_.trim(value) == "logout") {
+              this.router.navigate(new Array('/').concat(this.route_success));
+            }
+          }
+        });
+        this.xterm = new Terminal();
+        this.xterm.open(this.container.nativeElement);
+        this.xterm.loadAddon(this.fitAddon);
+        this.onResize(null);
+        this.getAuthToken().subscribe((res) => {
+          this.initializeWebShell(res);
+          this.initializeTerminal();
+        });
+      });
     });
+
   }
 
   ngOnDestroy() {
     if (this.shellSubscription) {
       this.shellSubscription.unsubscribe();
     }
-    if (this.ss.connected){
+    if (this.ss.connected) {
       this.ss.socket.close();
     }
   };
@@ -89,7 +104,7 @@ export class JailShellComponent implements OnInit, OnChanges, OnDestroy {
     this.fitAddon.fit();
   }
 
-  resizeTerm(){
+  resizeTerm() {
     const domHeight = document.body.offsetHeight;
     const domWidth = document.body.offsetWidth;
     let colNum = (domWidth * 0.75 - 104) / 10;
@@ -100,7 +115,7 @@ export class JailShellComponent implements OnInit, OnChanges, OnDestroy {
     if (rowNum < 10) {
       rowNum = 25;
     }
-    this.xterm.resize(parseInt(colNum.toFixed(),10),parseInt(rowNum.toFixed(),10));
+    this.xterm.resize(parseInt(colNum.toFixed(), 10), parseInt(rowNum.toFixed(), 10));
     return true;
   }
 
@@ -108,7 +123,7 @@ export class JailShellComponent implements OnInit, OnChanges, OnDestroy {
     this.ss.token = res;
     this.ss.jailId = this.pk;
     this.ss.connect();
-    this.ss.shellConnected.subscribe((res)=> {
+    this.ss.shellConnected.subscribe((res) => {
       this.shellConnected = res;
     })
   }
