@@ -23,7 +23,7 @@ export class JailShellComponent implements OnInit, OnChanges, OnDestroy {
   // xterm variables
   cols: string;
   rows: string;
-  font_size: number;
+  font_size: number = 14;
   public jailTitle: string
   public token: any;
   public xterm: Terminal;
@@ -78,11 +78,18 @@ export class JailShellComponent implements OnInit, OnChanges, OnDestroy {
   };
 
   onResize(event) {
-    this.resizeTerm();
+    //this.resizeTerm();
+  }
+
+  changeFontSize(e){
+    this.xterm.setOption('fontSize',this.font_size);
+    this.fitAddon.fit();
   }
 
   resetDefault() {
     this.font_size = 14;
+    this.xterm.setOption('fontSize',this.font_size);
+    this.fitAddon.fit();
   }
 
   ngOnChanges(changes: {
@@ -102,6 +109,7 @@ export class JailShellComponent implements OnInit, OnChanges, OnDestroy {
     const attachAddon = new AttachAddon(this.ss.socket);
     this.xterm.loadAddon(attachAddon);
     this.fitAddon.fit();
+
   }
 
   resizeTerm() {

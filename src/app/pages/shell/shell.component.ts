@@ -59,8 +59,15 @@ export class ShellComponent implements OnInit, OnChanges, OnDestroy {
     this.informTerminalChange();
   }
 
+  changeFontSize(e){
+    this.xterm.setOption('fontSize',this.font_size);
+    this.fitAddon.fit();
+  }
+
   resetDefault() {
     this.font_size = 14;
+    this.xterm.setOption('fontSize',this.font_size);
+    this.fitAddon.fit();
   }
 
   ngOnChanges(changes: {
