@@ -94,10 +94,10 @@ export const helptext_sharing_smb = {
  Separate entries with a comma, space, or tab.'),
 
     placeholder_vfsobjects: T('VFS Objects'),
-    tooltip_vfsobjects: T('Adds <a\
- href="--docurl--/sharing.html#avail-vfs-modules-tab"\
- target="blank">virtual file system modules</a> to\
- enhance functionality.'),
+    tooltip_vfsobjects: T('Adds virtual file system modules to enhance \
+ functionality. See the \
+ <a href="https://wiki.samba.org/index.php/Virtual_File_System_Modules" target="_blank">Samba documentation</a> \
+ for more details.'),
 
     placeholder_shadowcopy: T('Enable Shadow Copies'),
     tooltip_shadowcopy: T('Export ZFS snapshots as\
@@ -112,6 +112,11 @@ export const helptext_sharing_smb = {
     actions_advanced_mode: T('Advanced Mode'),
 
     action_edit_acl: T('Edit ACL'),
+    action_edit_acl_dialog: {
+       title: T('Error'),
+       message1: T('The pool containing'),
+       message2: T('is offline. Be sure the pool is not locked.')
+    },
 
     dialog_warning: T('Warning'),
     dialog_warning_message: T("Setting default permissions will reset the permissions of this share and any others within its path."),
