@@ -182,7 +182,7 @@ export class WidgetSysInfoComponent extends WidgetComponent implements OnInit,On
       if(this.data.system_manufacturer && this.data.system_manufacturer.toLowerCase() == 'ixsystems'){
         this.manufacturer = "ixsystems";
       } else {
-        this.manufacturer = "other";
+        //this.manufacturer = "other";
       }
       if (this.product_type === 'CORE') {
         this.systemLogo = 'logo.svg';

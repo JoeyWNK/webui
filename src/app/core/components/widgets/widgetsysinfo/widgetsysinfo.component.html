@@ -90,7 +90,7 @@
               <div fxHide.xs class="list-subheader">{{'Overview' | translate}}</div>
 
               <mat-list>
-                <mat-list-item><strong>{{'Platform' | translate}}:</strong> &nbsp;&nbsp;{{data.system_product && manufacturer == 'ixsystems' ? data.system_product : 'Generic'}}</mat-list-item>
+                <mat-list-item><strong>{{'Platform' | translate}}:</strong> &nbsp;&nbsp;{{data.system_product}}</mat-list-item>
                 <mat-list-item><strong>{{"Version" | translate}}:</strong> &nbsp;&nbsp;<div><span textLimiter threshold="28">{{data.version}}</span></div></mat-list-item>
 
                 <mat-list-item *ngIf="data.license">
@@ -99,7 +99,7 @@
                   expires {{data.license.contract_end.$value}}
                 </mat-list-item>
 
-                <mat-list-item  *ngIf="data.system_serial && manufacturer == 'ixsystems' ">
+                <mat-list-item>
                   <span><strong>{{"Serial Number" | translate}}:</strong>&nbsp;&nbsp;{{ data.system_serial}}</span>
                 </mat-list-item>
 

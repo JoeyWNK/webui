@@ -106,9 +106,18 @@ export class LineChartComponent extends ViewComponent implements AfterViewInit, 
   public renderGraph(option){
     let data = this.makeTimeAxis(this.data);
     let labels = data.shift();
-
-    let fg2RGB = this.utils.hexToRGB(this.themeService.currentTheme().fg2);
-    let gridLineColor = 'rgba(' + fg2RGB.rgb[0] + ', ' + fg2RGB.rgb[1]+ ', ' + fg2RGB.rgb[2]+ ', 0.25)'
+    let gridLineColor = this.themeService.currentTheme().fg2;
+    switch (this.utils.getValueType(gridLineColor)) {
+      case "rgba":
+        break;
+      case "rgb":
+        gridLineColor = this.utils.rgbToHex(gridLineColor);
+      case "hex":
+        let rgb = this.utils.hexToRGB(gridLineColor).rgb;
+        // return rgba
+        gridLineColor =  "rgba(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + "," + ', 0.25)';
+        break;
+    }
 
     let options = {
        drawPoints:false,// Must be disabled for smoothPlotter

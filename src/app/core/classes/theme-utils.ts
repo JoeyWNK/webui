@@ -54,7 +54,6 @@ export class ThemeUtils {
   hexToRGB(str) {
     const valueType = this.getValueType(str); // cssVar || hex || rgb || rgba
     if(valueType != "hex") console.error("This method takes a hex value as a parameter but was given a value of type " + valueType);
-
     var spl = str.split('#');
     var hex = spl[1];
     if(hex.length == 3){

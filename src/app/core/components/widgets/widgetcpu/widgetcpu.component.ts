@@ -398,13 +398,18 @@ export class WidgetCpuComponent extends WidgetComponent implements AfterViewInit
     let currentTheme = this.themeService.currentTheme();
     let txtColor = currentTheme.fg2;
 
-    // convert to rgb
-    let rgb = this.utils.hexToRGB(txtColor).rgb;
-
-    // return rgba
-    let rgba =  "rgba(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + "," + opacity + ")";
-
-    return rgba;
+    switch (this.utils.getValueType(txtColor)) {
+      case "rgba":
+        return txtColor;
+      case "rgb":
+        txtColor = this.utils.rgbToHex(txtColor);
+      case "hex":
+        let rgb = this.utils.hexToRGB(txtColor).rgb;
+        // return rgba
+        let rgba =  "rgba(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + "," + opacity + ")";
+        return rgba;
+    }
+    
   }
 
 }

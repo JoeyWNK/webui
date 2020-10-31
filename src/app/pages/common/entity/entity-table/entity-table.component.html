@@ -180,7 +180,6 @@
       [selected]='selected'
       (activate)="onActivate($event)"
       (select)='onSelect($event)'
-      [style.height.px]="tableHeight"
       [scrollbarH]='true'
       [scrollbarV]='true'
       [sorts]="[rows.length > 1 ? { prop: sortKey, dir: 'asc' } : '']"
